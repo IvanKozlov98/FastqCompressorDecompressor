@@ -2,29 +2,71 @@
 #include "coders/range_coder/range_coder.h"
 #include "coders/ans_coder/ans_coder.h"
 #include "coders/haffman_coder/huffman_coder.h"
+#include <boost/program_options.hpp>
 
-int main() {
-    std::string exp_file = "mgi_1_4";
-    std::string seq_file = exp_file + "_seqs.txt";
-
-//    separate_fastq("mgi_1_4.fq");
-
-//    coders::RangeCoderAdapter::compress("mgi_1_4_seqs.txt", "mgi_1_4_seqs_zip.txt");
-//    coders::RangeCoderAdapter::decompress("mgi_1_4_seqs_zip.txt", "mgi_1_4_seqs_unzip.txt");
+namespace po = boost::program_options;
 
 
+int main(int argc, char* argv[]) {
+// Define variables to store the option values
+    std::string inputFile;
+    std::string outputFile;
+    bool compress = false;
+    bool decompress = false;
+    std::string method = "ans";
 
+    // Declare the command-line options
+    po::options_description desc("Allowed options");
+    desc.add_options()
+            ("input,i", po::value<std::string>(&inputFile)->required(), "input file")
+            ("output,o", po::value<std::string>(&outputFile)->required(), "output file")
+            ("compress,c", po::bool_switch(&compress), "compress")
+            ("decompress,d", po::bool_switch(&decompress), "decompress")
+            ("method,m", po::value<std::string>(&method)->default_value("ans"),
+                    "compression method, possible values:"
+                    "\n\'ans\' - Asymmetric numeral systems"
+                    "\n\'huffman\' - Huffman coding"
+                    "\n\'range\' - Range encoding")
+            ("help,h", "produce help message");
 
-//    const char* out = "mgi_1_4_huf.txt";
-//    coders::HuffmanCoderAdapter::compress(seq_file.c_str(), out);
-//    std::cout << "After compress " << getFileSize(out);
-//    coders::HuffmanCoderAdapter::decompress(out, (seq_file + "_unhuf.txt").c_str());
+    // Parse the command-line options
+    po::variables_map vm;
+    try {
+        po::store(po::command_line_parser(argc, argv).options(desc).run(), vm);
+        if (vm.count("help")) {
+            std::cout << desc << std::endl;
+            return 0;
+        }
 
-//    coders::AnsCoderAdapter::compress("short_version_reads_seqs.txt", "short_version_reads_seqs_ans.txt");
-//    coders::AnsCoderAdapter::decompress("short_version_reads_seqs_ans.txt", "qqqqqq.txt");
+        po::notify(vm);
+    } catch (const po::error& e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+        std::cout << desc << std::endl;
+        return 1;
+    }
 
-    coders::AnsCoderAdapter::compress("mgi_1_4_seqs.txt", "mgi_1_4_seqs_anszip.txt");
-    coders::AnsCoderAdapter::decompress("mgi_1_4_seqs_anszip.txt", "eeeeeeeeee.txt");
+    // Check for valid options
+    if (compress && decompress) {
+        std::cerr << "Error: Cannot specify both --compress and --decompress" << std::endl;
+        return 1;
+    }
+    if (!compress && !decompress) {
+        std::cerr << "Error: Either --compress or --decompress must be specified" << std::endl;
+        return 1;
+    }
+
+    if (method != "ans" && method != "huffman" && method != "range") {
+        // Code block executed when the method is not one of the specified values
+        std::cerr << "Invalid method. Please choose 'ans', 'huffman', or 'range'." << std::endl;
+        return 1;
+    }
+
+    // Process the options and run your compression/decompression logic
+    std::cout << "Input File: " << inputFile << std::endl;
+    std::cout << "Output File: " << outputFile << std::endl;
+    std::cout << "Compression: " << std::boolalpha << compress << std::endl;
+    std::cout << "Decompression: " << std::boolalpha << decompress << std::endl;
+    std::cout << "Compression Method: " << method << std::endl;
 
     return 0;
 }
