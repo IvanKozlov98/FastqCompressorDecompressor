@@ -23,22 +23,22 @@ Allowed options:
 ```
 
 ## Usage example
-Compress using one method for all file (`mgi_1_8.fq`)
+Compress using one method for all file (`path_to_fq`)
 ```sh
-./test_mgi -i mgi_1_8.fq -o mgi_1_8_range.zip -m range -c
+./test_mgi -i path_to_fq -o path_to_fq.com -m range -c
 ```
-Decompress using one method for all file (`mgi_1_8_range.zip`)
+Decompress using one method for all file (`path_to_fq.com`)
 ```sh
-./test_mgi -i mgi_1_8_range.zip -o mgi_1_8_range_unzip.unzip -m range -d
+./test_mgi -i path_to_fq.com -o path_to_fq.uncom -m range -d
 ```
 
-Compress using several methods for different parts of `mgi_1_8.fq` that are in the file `range_methods.txt`
+Compress using several methods for different parts of `path_to_fq` that are in the file `encode_methods` (examples in directory `experiments`)
 ```sh
-./test_mgi -i mgi_1_8.fq -o mgi_1_8_range_sep.zip -m range_methods.txt -c
+./test_mgi -i path_to_fq -o path_to_fq_sep.com -m encode_methods -c
 ```
-Decompress using several methods for different parts of `mgi_1_8.fq` that are in the file `range_methods.txt`
+Decompress using several methods for different parts of `path_to_fq_sep.com` that are in the file `encode_methods`
 ```sh
-./test_mgi -i mgi_1_8_range_sep.zip -o mgi_1_8_range_sep.unzip -m range_methods.txt -d
+./test_mgi -i path_to_fq_sep.com -o path_to_fq_sep.uncom -m encode_methods -d
 ```
 
 ## Experiments
