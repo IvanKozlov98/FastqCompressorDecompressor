@@ -109,15 +109,10 @@ int main(int argc, char* argv[]) {
             auto output_separated_names = SeparatedNames::getNames(outputFile);
             auto separated_names = separate_fastq(inputFile, input_separated_names);
             //
-            printf("%s : ", output_separated_names.ids.c_str());
-            printf("%s : ", output_separated_names.nn.c_str());
-            printf("%s : ", output_separated_names.qs.c_str());
-            printf("%s : ", output_separated_names.seqs.c_str());
-
-            coders::compress(input_separated_names.ids.c_str(), output_separated_names.ids.c_str(), methods[0], "COMPRESS IDs");
-            coders::compress(input_separated_names.nn.c_str(), output_separated_names.nn.c_str(), methods[1], "COMPRESS NNs");
-            coders::compress(input_separated_names.qs.c_str(), output_separated_names.qs.c_str(), methods[2], "COMPRESS QUALITIES");
-            coders::compress(input_separated_names.seqs.c_str(), output_separated_names.seqs.c_str(), methods[3], "COMPRESS SEQUENCES");
+            coders::compress(input_separated_names.ids.c_str(), output_separated_names.ids.c_str(), methods[0], ("COMPRESS IDs by " + methods[0]).c_str());
+            coders::compress(input_separated_names.nn.c_str(), output_separated_names.nn.c_str(), methods[1], ("COMPRESS NNs by " + methods[1]).c_str());
+            coders::compress(input_separated_names.qs.c_str(), output_separated_names.qs.c_str(), methods[2], ("COMPRESS QUALITIES by " + methods[2]).c_str());
+            coders::compress(input_separated_names.seqs.c_str(), output_separated_names.seqs.c_str(), methods[3], ("COMPRESS SEQUENCES by " + methods[3]).c_str());
 
             // Code block executed when the method is not one of the specified values
             //std::cerr << "Invalid method. Please choose 'ans', 'huffman', or 'range'." << std::endl;
@@ -130,10 +125,10 @@ int main(int argc, char* argv[]) {
         auto input_separated_names = SeparatedNames::getNames(inputFile);
         auto output_separated_names = SeparatedNames::getNames(outputFile);
 
-        coders::decompress(input_separated_names.ids.c_str(), output_separated_names.ids.c_str(), methods[0], "DECOMPRESS IDs");
-        coders::decompress(input_separated_names.nn.c_str(), output_separated_names.nn.c_str(), methods[1], "DECOMPRESS NNs");
-        coders::decompress(input_separated_names.qs.c_str(), output_separated_names.qs.c_str(), methods[2], "DECOMPRESS QUALITIES");
-        coders::decompress(input_separated_names.seqs.c_str(), output_separated_names.seqs.c_str(), methods[3], "DECOMPRESS SEQUENCES");
+        coders::decompress(input_separated_names.ids.c_str(), output_separated_names.ids.c_str(), methods[0], ("DECOMPRESS IDs by "+ methods[0]).c_str());
+        coders::decompress(input_separated_names.nn.c_str(), output_separated_names.nn.c_str(), methods[1], ("DECOMPRESS NNs by " + methods[1]).c_str());
+        coders::decompress(input_separated_names.qs.c_str(), output_separated_names.qs.c_str(), methods[2], ("DECOMPRESS QUALITIES by " + methods[2]).c_str());
+        coders::decompress(input_separated_names.seqs.c_str(), output_separated_names.seqs.c_str(), methods[3], ("DECOMPRESS SEQUENCES by " + methods[3]).c_str());
 
         mergePartsFastq(outputFile, output_separated_names);
     }
