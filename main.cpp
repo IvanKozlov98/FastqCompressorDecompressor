@@ -8,6 +8,43 @@
 
 namespace po = boost::program_options;
 
+namespace coders {
+    void compress(const char* inputFile, const char* outputFile, const std::string& method, const char* label) {
+        printf("%s \n", label);
+        clock_t start_decoding = clock();
+        if (method == "ans") {
+            coders::AnsCoderAdapter::compress(inputFile, outputFile);
+        } else if (method == "huffman") {
+            coders::HuffmanCoderAdapter::compress(inputFile, outputFile);
+        } else {
+            coders::RangeCoderAdapter::compress(inputFile, outputFile);
+        }
+        clock_t end_decoding = clock();
+        printf("Compression is ended, time is %2.3f sec.\n", (double)(end_decoding - start_decoding)/CLOCKS_PER_SEC);
+        auto data_size = getFileSize(inputFile);
+        auto result_size = getFileSize(outputFile);
+
+        printf("Original size                                %10ld bytes\n", data_size);
+        printf("Actual encoded size                          %10ld bytes\n", result_size);
+        double ratio = (double)result_size;
+        ratio /= (double)data_size;
+        printf("Compression ratio                                 %2.3f of original size.\n\n", ratio);
+    }
+
+    void decompress(const char* inputFile, const char* outputFile, const std::string& method, const char* label) {
+        printf("%s \n", label);
+        clock_t start_decoding = clock();
+        if (method == "ans") {
+            coders::AnsCoderAdapter::decompress(inputFile, outputFile);
+        } else if (method == "huffman") {
+            coders::HuffmanCoderAdapter::decompress(inputFile, outputFile);
+        } else {
+            coders::RangeCoderAdapter::decompress(inputFile, outputFile);
+        }
+        clock_t end_decoding = clock();
+        printf("Decompression is ended, time is %2.3f sec.\n", (double)(end_decoding - start_decoding)/CLOCKS_PER_SEC);
+    }
+}
 
 int main(int argc, char* argv[]) {
 // Define variables to store the option values
@@ -57,12 +94,6 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    if (method != "ans" && method != "huffman" && method != "range") {
-        // Code block executed when the method is not one of the specified values
-        std::cerr << "Invalid method. Please choose 'ans', 'huffman', or 'range'." << std::endl;
-        return 1;
-    }
-
     // Process the options and run your compression/decompression logic
     std::cout << "Input File: " << inputFile << std::endl;
     std::cout << "Output File: " << outputFile << std::endl;
@@ -72,32 +103,39 @@ int main(int argc, char* argv[]) {
     std::cout << "--------------------" << std::endl;
 
     if (compress) {
-        clock_t start_decoding = clock();
-        if (method == "ans") {
-            coders::AnsCoderAdapter::compress(inputFile.c_str(), outputFile.c_str());
-        } else if (method == "huffman") {
-            coders::HuffmanCoderAdapter::compress(inputFile.c_str(), outputFile.c_str());
-        } else {
-            coders::RangeCoderAdapter::compress(inputFile.c_str(), outputFile.c_str());
-        }
-        clock_t end_decoding = clock();
-        printf("Decompression is ended, time is %2.3f sec.\n", (double)(end_decoding - start_decoding)/CLOCKS_PER_SEC);
-        auto data_size = getFileSize(inputFile.c_str());
-        auto result_size = getFileSize(outputFile.c_str());
+        if (method != "ans" && method != "huffman" && method != "range") {
+            auto methods = getEncodeMethods(method.c_str());
+            auto input_separated_names = SeparatedNames::getNames(inputFile);
+            auto output_separated_names = SeparatedNames::getNames(outputFile);
+            auto separated_names = separate_fastq(inputFile, input_separated_names);
+            //
+            printf("%s : ", output_separated_names.ids.c_str());
+            printf("%s : ", output_separated_names.nn.c_str());
+            printf("%s : ", output_separated_names.qs.c_str());
+            printf("%s : ", output_separated_names.seqs.c_str());
 
-        printf("Original size                                %10ld bytes\n", data_size);
-        printf("Actual encoded size                          %10ld bytes\n", result_size);
-        double ratio = (double)result_size;
-        ratio /= (double)data_size;
-        printf("Compression ratio                                 %2.3f of original size.\n\n", ratio);
-    } else {
-        if (method == "ans") {
-            coders::AnsCoderAdapter::decompress(inputFile.c_str(), outputFile.c_str());
-        } else if (method == "huffman") {
-            coders::HuffmanCoderAdapter::decompress(inputFile.c_str(), outputFile.c_str());
+            coders::compress(input_separated_names.ids.c_str(), output_separated_names.ids.c_str(), methods[0], "COMPRESS IDs");
+            coders::compress(input_separated_names.nn.c_str(), output_separated_names.nn.c_str(), methods[1], "COMPRESS NNs");
+            coders::compress(input_separated_names.qs.c_str(), output_separated_names.qs.c_str(), methods[2], "COMPRESS QUALITIES");
+            coders::compress(input_separated_names.seqs.c_str(), output_separated_names.seqs.c_str(), methods[3], "COMPRESS SEQUENCES");
+
+            // Code block executed when the method is not one of the specified values
+            //std::cerr << "Invalid method. Please choose 'ans', 'huffman', or 'range'." << std::endl;
+            //return 1;
         } else {
-            coders::RangeCoderAdapter::decompress(inputFile.c_str(), outputFile.c_str());
+            coders::compress(inputFile.c_str(), outputFile.c_str(), method, "COMPRESS ALL");
         }
+    } else {
+        auto methods = getEncodeMethods(method.c_str());
+        auto input_separated_names = SeparatedNames::getNames(inputFile);
+        auto output_separated_names = SeparatedNames::getNames(outputFile);
+
+        coders::decompress(input_separated_names.ids.c_str(), output_separated_names.ids.c_str(), methods[0], "DECOMPRESS IDs");
+        coders::decompress(input_separated_names.nn.c_str(), output_separated_names.nn.c_str(), methods[1], "DECOMPRESS NNs");
+        coders::decompress(input_separated_names.qs.c_str(), output_separated_names.qs.c_str(), methods[2], "DECOMPRESS QUALITIES");
+        coders::decompress(input_separated_names.seqs.c_str(), output_separated_names.seqs.c_str(), methods[3], "DECOMPRESS SEQUENCES");
+
+        mergePartsFastq(outputFile, output_separated_names);
     }
 
     return 0;

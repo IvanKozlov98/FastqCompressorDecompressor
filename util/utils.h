@@ -28,8 +28,7 @@ struct SeparatedNames {
     }
 };
 
-void separate_fastq(const std::string& filename) {
-    const auto& separated_names = SeparatedNames::getNames(filename);
+SeparatedNames separate_fastq(const std::string& filename, const SeparatedNames& separated_names) {
     std::ifstream fin(filename);
     std::ofstream fout_ids(separated_names.ids);
     std::ofstream fout_seqs(separated_names.seqs);
@@ -51,6 +50,11 @@ void separate_fastq(const std::string& filename) {
         std::getline(fin, cur_str);
         fout_qs << cur_str << std::endl;
     }
+    fout_ids.close();
+    fout_seqs.close();
+    fout_nn.close();
+    fout_qs.close();
+    return separated_names;
 }
 
 long getFileSize(const char* filename) {
@@ -67,5 +71,47 @@ long getFileSize(const char* filename) {
 
     return size;
 }
+
+std::vector<std::string> getEncodeMethods(const char* filename) {
+    std::ifstream fin(filename);
+    std::vector<std::string> res;
+    std::string method;
+    while(!fin.eof()) {
+        // read & write identifiers
+        std::getline(fin, method);
+        res.push_back(method);
+    }
+    return res;
+}
+
+void mergePartsFastq(const std::string& filename, const SeparatedNames& separated_names) {
+    std::ofstream fout(filename);
+    std::ifstream fin_ids(separated_names.ids);
+    std::ifstream fin_seqs(separated_names.seqs);
+    std::ifstream fin_nn(separated_names.nn);
+    std::ifstream fin_qs(separated_names.qs);
+
+    std::string cur_str;
+    while(!fin_ids.eof()) {
+        // read & write identifiers
+        std::getline(fin_ids, cur_str);
+        fout << cur_str << std::endl;
+        // read & write sequences
+        std::getline(fin_seqs, cur_str);
+        fout << cur_str << std::endl;
+        // read & write nn_ids
+        std::getline(fin_nn, cur_str);
+        fout << cur_str << std::endl;
+        // read & write qualities
+        std::getline(fin_qs, cur_str);
+        fout << cur_str << std::endl;
+    }
+    std::remove(separated_names.ids.c_str());
+    std::remove(separated_names.seqs.c_str());
+    std::remove(separated_names.nn.c_str());
+    std::remove(separated_names.qs.c_str());
+    fout.close();
+}
+
 
 #endif //TEST_MGI_UTILS_H
