@@ -180,10 +180,8 @@ namespace coders {
             stats.count_freqs(infile);
             // Move the file pointer to the end of the file
             fseek(infile, 0, SEEK_END);
-
             // Get the size of the file
-            long fileSize = ftell(infile);
-
+            unsigned long fileSize = ftell(infile);
             static const uint32_t prob_bits = 14;
             static const uint32_t prob_scale = 1 << prob_bits;
             stats.normalize_freqs(prob_scale);
@@ -194,7 +192,6 @@ namespace coders {
 
             // try rANS encode
             RansEncSymbol esyms[256];
-
             for (int i=0; i < 256; i++) {
                 RansEncSymbolInit(&esyms[i], stats.cum_freqs[i], stats.freqs[i], prob_bits);
             }
@@ -233,11 +230,8 @@ namespace coders {
 
         static void decompress(const char* in, const char* out) {
             SymbolStats stats;
-
             create_empty_file(out);
-
             FILE* file = fopen(in, "rb"); // Open the file in binary mode for reading
-
             if (file == NULL) {
                 perror("Error opening the file");
             }
@@ -254,7 +248,6 @@ namespace coders {
             // Read the arrays and compress_size from the file
             uint32_t block_sizes[1024];
             unsigned long originalFileSize;
-
             if (fread(stats.freqs, sizeof(uint64_t), 256, file) != 256 ||
                 fread(stats.cum_freqs, sizeof(uint64_t), 257, file) != 257 ||
                 fread(block_sizes, sizeof(uint32_t), 1024, file) != 1024 ||

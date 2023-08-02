@@ -1,17 +1,4 @@
-//
-// Created by ivankozlov98 on 8/1/23.
-//
-
-#ifndef TEST_MGI_RANGE_CODER_H
-#define TEST_MGI_RANGE_CODER_H
-
-
-//The context compressor, author M.Smirnov.
-//The source also can be found at
-//http://compression.graphicon.ru/
-//usage:
-//c infile outfile //encoding
-//d infile outfile //decoding
+#pragma once
 
 #include <time.h>
 #include <stdio.h>
@@ -243,5 +230,3 @@ namespace coders {
     };
 }
 
-
-#endif //TEST_MGI_RANGE_CODER_H

@@ -9,14 +9,12 @@ namespace coders {
             h.create_huffman_tree();
             h.calculate_huffman_codes();
             h.coding_save();
-            cout << endl;
         }
 
         static void decompress(const char* in, const char* out) {
             huffman h(in, out);
             h.recreate_huffman_tree();
             h.decoding_save();
-            cout << endl;
         }
     };
 }

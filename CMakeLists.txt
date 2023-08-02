@@ -13,7 +13,7 @@ find_package(Boost REQUIRED COMPONENTS program_options)
 # Add the include directories for Boost
 #include_directories(${Boost_INCLUDE_DIR})
 
-add_executable(test_mgi main.cpp coders/range_coder/range_coder.h util/utils.h coders/ans_coder/ans_coder.h coders/ans_coder/platform.h coders/ans_coder/rans_byte.h coders/haffman_coder/huffman_coder.h coders/haffman_coder/huffman.cpp)
+add_executable(test_mgi main.cpp coders/range_coder/range_coder.h util/utils.h coders/ans_coder/ans_coder.h coders/ans_coder/platform.h coders/ans_coder/rans_byte.h coders/haffman_coder/huffman_coder.h coders/haffman_coder/huffman.cpp coders/coder.h)
 
 # Link your executable with the Boost libraries
 target_link_libraries(test_mgi PRIVATE ${Boost_LIBRARIES})

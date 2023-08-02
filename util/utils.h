@@ -1,9 +1,5 @@
-//
-// Created by ivankozlov98 on 8/1/23.
-//
+#pragma once
 
-#ifndef TEST_MGI_UTILS_H
-#define TEST_MGI_UTILS_H
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -18,17 +14,16 @@ struct SeparatedNames {
     std::string qs;
 
     static SeparatedNames getNames(const std::string& filename) {
-        std::string prefix = filename.substr(0, filename.find_last_of('.'));
         SeparatedNames result{};
-        result.ids = prefix + "_ids.txt";
-        result.seqs = prefix + "_seqs.txt";
-        result.nn = prefix + "_nn.txt";
-        result.qs = prefix + "_qs.txt";
+        result.ids = filename + "_ids.txt";
+        result.seqs = filename + "_seqs.txt";
+        result.nn = filename + "_nn.txt";
+        result.qs = filename + "_qs.txt";
         return result;
     }
 };
 
-SeparatedNames separate_fastq(const std::string& filename, const SeparatedNames& separated_names) {
+void separate_fastq(const std::string& filename, const SeparatedNames& separated_names) {
     std::ifstream fin(filename);
     std::ofstream fout_ids(separated_names.ids);
     std::ofstream fout_seqs(separated_names.seqs);
@@ -54,13 +49,12 @@ SeparatedNames separate_fastq(const std::string& filename, const SeparatedNames&
     fout_seqs.close();
     fout_nn.close();
     fout_qs.close();
-    return separated_names;
 }
 
 long getFileSize(const char* filename) {
     FILE* file = fopen(filename, "rb"); // Open the file in binary mode
 
-    if (file == NULL) {
+    if (file == nullptr) {
         perror("Error opening the file");
         return -1; // Return -1 to indicate an error
     }
@@ -112,6 +106,3 @@ void mergePartsFastq(const std::string& filename, const SeparatedNames& separate
     std::remove(separated_names.qs.c_str());
     fout.close();
 }
-
-
-#endif //TEST_MGI_UTILS_H
