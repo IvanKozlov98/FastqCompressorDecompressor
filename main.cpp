@@ -3,6 +3,8 @@
 #include "coders/ans_coder/ans_coder.h"
 #include "coders/haffman_coder/huffman_coder.h"
 #include <boost/program_options.hpp>
+#include <time.h>
+
 
 namespace po = boost::program_options;
 
@@ -67,6 +69,36 @@ int main(int argc, char* argv[]) {
     std::cout << "Compression: " << std::boolalpha << compress << std::endl;
     std::cout << "Decompression: " << std::boolalpha << decompress << std::endl;
     std::cout << "Compression Method: " << method << std::endl;
+    std::cout << "--------------------" << std::endl;
+
+    if (compress) {
+        clock_t start_decoding = clock();
+        if (method == "ans") {
+            coders::AnsCoderAdapter::compress(inputFile.c_str(), outputFile.c_str());
+        } else if (method == "huffman") {
+            coders::HuffmanCoderAdapter::compress(inputFile.c_str(), outputFile.c_str());
+        } else {
+            coders::RangeCoderAdapter::compress(inputFile.c_str(), outputFile.c_str());
+        }
+        clock_t end_decoding = clock();
+        printf("Decompression is ended, time is %2.3f sec.\n", (double)(end_decoding - start_decoding)/CLOCKS_PER_SEC);
+        auto data_size = getFileSize(inputFile.c_str());
+        auto result_size = getFileSize(outputFile.c_str());
+
+        printf("Original size                                %10ld bytes\n", data_size);
+        printf("Actual encoded size                          %10ld bytes\n", result_size);
+        double ratio = (double)result_size;
+        ratio /= (double)data_size;
+        printf("Compression ratio                                 %2.3f of original size.\n\n", ratio);
+    } else {
+        if (method == "ans") {
+            coders::AnsCoderAdapter::decompress(inputFile.c_str(), outputFile.c_str());
+        } else if (method == "huffman") {
+            coders::HuffmanCoderAdapter::decompress(inputFile.c_str(), outputFile.c_str());
+        } else {
+            coders::RangeCoderAdapter::decompress(inputFile.c_str(), outputFile.c_str());
+        }
+    }
 
     return 0;
 }

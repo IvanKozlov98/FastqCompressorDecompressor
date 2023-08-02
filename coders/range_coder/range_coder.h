@@ -216,24 +216,10 @@ void decode (void){
     }
 }
 
-int getFileSize(char* fileName) {
-
-    FILE* f;
-    if ((f = fopen(fileName, "rb")) == NULL)
-        return -1;
-
-    fseek(f, 0, SEEK_END);
-    int bytes = ftell(f);
-    fclose(f);
-
-    return bytes;
-}
-
 namespace coders {
     class RangeCoderAdapter {
     public:
-        static void compress(char* inFile, char* outFile) {
-            clock_t start_encoding = clock();
+        static void compress(const char* inFile, const char* outFile) {
             FILE *inf, *outf;
             inf = fopen (inFile, "rb");
             outf = fopen (outFile, "wb");
@@ -242,28 +228,10 @@ namespace coders {
             encode ();
             fclose (inf);
             fclose (outf);
-
-            int data_size = getFileSize(inFile);
-            int result_size = getFileSize(outFile);
-
-            printf("Original size                                %10d bytes\n", data_size);
-            printf("Actual encoded size                          %10d bytes\n\n", result_size);
-
-            clock_t end_encoding = clock();
-            printf("Time for encoding                                 %2.3f sec.\n", (double)(end_encoding - start_encoding)/CLOCKS_PER_SEC);
-
-            double ratio = (double)result_size;
-            ratio /= (double)data_size;
-            printf("Compression ratio                                 %2.3f of original size.\n\n", ratio);
         }
 
-        static void decompress(char* inFile, char* outFile){
+        static void decompress(const char* inFile, const char* outFile){
             FILE *inf, *outf;
-            int data_size = getFileSize(inFile);
-            printf("Compressed file size        %10d bytes\n", data_size);
-
-            clock_t start_decoding = clock();
-
             inf = fopen (inFile, "rb");
             outf = fopen (outFile, "wb");
             CompressedFile.SetFile (inf);
@@ -271,10 +239,7 @@ namespace coders {
             decode ();
             fclose (inf);
             fclose (outf);
-
-            clock_t end_decoding = clock();
-            printf("Decompression is ended, time is %2.3f sec.\n\n", (double)(end_decoding - start_decoding)/CLOCKS_PER_SEC);
-        }
+       }
     };
 }
 
